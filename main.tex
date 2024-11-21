@@ -1,0 +1,183 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{parskip}
+\usepackage{amssymb}
+\usepackage[utf8]{inputenc} 
+\usepackage[ngerman]{babel} 
+\usepackage[T1]{fontenc}
+
+% Für einzelne Code-Elemente
+\usepackage{listings}
+% Für SQL Quereys
+\usepackage{xcolor}
+\usepackage{minted}
+\definecolor{bg}{rgb}{0.95,0.95,0.95}
+
+\usepackage{url} % benötigt für URL in Literaturverzeichnis
+
+\hypersetup{
+    hidelinks % Macht alle Links unsichtbar (kein Rahmen, keine Farben)
+}
+
+
+\title{Abgabe 1 für Computergestützte Methoden}
+\author{Gruppe 52, David Lukic}
+\date{(Abgabedatum)}
+
+
+\begin{document}
+
+% Title, Autor und Datum erzeugen
+\maketitle
+
+% Inhaltsverzeichnis
+\tableofcontents
+
+% starte mit dem Inhalt auf der nächsten Seite
+\newpage
+
+\section{Der zentrale Grenzwertsatz}
+
+Der zentrale Grenzwertsatz (ZGS) ist ein fundamentales Resultat der Wahrscheinlichkeitstheorie, das die Verteilung von Summen unabhängiger, identisch verteilter ($i.i.d.$) Zufallsvariablen (ZV) beschreibt. Er besagt, dass unter bestimmten Voraussetzungen die Summe einer großen Anzahl solcher ZV annähernd normalverteilt ist, unabhängig von der Verteilung der einzelnen ZV.  Dies ist besonders nützlich, da die Normalverteilung gut untersucht und mathematisch handhabbar ist.
+
+
+\subsection{Aussage}
+
+Sei $X_1, X_2, \ldots, X_n$ eine Folge von $i.i.d.$ ZV mit dem Erwartungswert $\mu = \mathbb{E}(X_i)$ und der Varianz $\sigma^2 = \mathrm{Var}(X_i)$, wobei $0 < \sigma^2 < \infty$ gelte. Dann konvergiert die standardisierte Summe $Z_n$ dieser ZV für $n \to \infty$ in Verteilung gegen eine Standardnormalverteilung:\footnote{Der zentrale Grenzwertsatz hat verschiedene Verallgemeinerungen. Eine davon ist der \textbf{Lindeberg-Feller-Zentrale-Grenzwertsatz} \cite[Seite 328]{klenke2013}, der schwächere Bedingungen an die Unabhängigkeit und die identische Verteilung der ZV stellt.}
+
+\begin{equation}
+Z_n = \frac{\sum_{i=1}^n X_i - n\mu}{\sigma \sqrt{n}} \xrightarrow{d} N(0,1). \label{Konvergenz}
+\end{equation}
+
+Das bedeutet, dass für große $n$ die Summe der ZV näherungsweise normalverteilt ist mit Erwartungswert $n\mu$ und Varianz $n\sigma^2$:
+\begin{equation}
+\sum_{i=1}^n X_i \sim N(n\mu, n\sigma^2). \label{Näherung}
+\end{equation}
+
+\subsection{Erklärung der Standardisierung}
+
+Um die Summe der ZV in eine Standardnormalverteilung zu transformieren, subtrahiert man den Erwartungswert $n\mu$ und teilt durch die Standardabweichung $\sigma \sqrt{n}$. Dies führt zu der obigen Formel \eqref{Konvergenz}. Die Darstellung \eqref{Näherung} ist für $n \to \infty$ nicht wohldefiniert.
+
+
+\subsection{Anwendungen}
+
+Der ZGS wird in vielen Bereichen der Statistik und der Wahrscheinlichkeitstheorie angewendet. Typische Beispiele sind:
+\begin{itemize}
+    \item Analyse von Stichprobenverteilungen,
+    \item Hypothesentests in der Statistik.
+\end{itemize}
+
+
+\newpage
+\section{Bearbeitung zur Aufgabe 1}
+\subsection{Datenverarbeitung}
+\subsubsection{Analyse und Struktur des zugewiesenen Datenteils}
+
+Die für unsere Gruppe 52 relevanten Daten umfassen 365 Einträge und 12 Spalten mit folgenden Bezeichnungen:
+
+\begin{lstlisting}
+group                       precipitation
+station                     windspeed
+date                        min_temperature
+day_of_year                 average_temperature
+day_of_week                 max_temperature
+month_of_year               count
+\end{lstlisting}
+
+Die Daten sind größtenteils vollständig, weisen jedoch vereinzelt fehlende Werte auf. Jeder Eintrag repräsentiert offenbar einen einzelnen Tag im Jahr. Auffällig ist, dass der Wert in der Spalte \texttt{station} durchgehend mit \texttt{E 25 St \& 2 Ave} angegeben ist. Zudem deuten die Daten der Temperaturen darauf hin, dass diese in Fahrenheit angegeben sind, da die Werte teilweise über 80 liegen und somit Celsius unwahrscheinlich erscheint.
+
+\subsubsection{Berechnung der höchsten mittleren Temperatur}
+Wir haben den Datensatz mit der CSV-Import Funktion in Excel importiert.\\\\
+Um die höchste mittlere Temperatur des für uns relevanten Datensatzes zu ermitteln, filtern wir zunächst alle Einträge, sodass nur Einträge mit dem Wert \texttt{52} in der Spalte \texttt{group} angezeigt werden. Anschließend nutzen wir die \texttt{MAX}-Funktion aus Excel, um den höchsten Wert in der Spalte \texttt{average\_temperature} zu ermitteln. Wichtig ist, dass vorher sichergestellt wird, dass der Datentyp der Einträge ein numerischer ist.
+\begin{lstlisting}
+=MAX(J18584:J18584).
+\end{lstlisting}
+Diesen Wert speichern wir in der Zelle \texttt{M1} ab. Da dieser Wert in Fahrenheit angegeben ist, konvertieren wir ihn abschließend mit einer weiteren Rechnung in Grad Celsius und erhalten so das Endergebnis von 28,33 Grad Celsius
+\begin{lstlisting}
+=(M1-32)/1,8.
+\end{lstlisting}
+ 
+\subsection{Datenhaltung}
+\subsubsection{Entwurf eines Datenbank-Schemas in 1. und 2. Normalform}
+
+Die Tabelle der CSV-Datei befindet sich bereits in der 1NF, da jeder Attributwert atomar ist. Das Datenbank-Schema ergibt sich als: 
+
+\texttt{bike\_sharing\_data}(\texttt{group}, \underline{\texttt{station}, \texttt{date}}, \texttt{day\_of\_year}, \texttt{day\_of\_week}, \texttt{month\_of\_year}, \texttt{precipitation}, \texttt{windspeed}, \texttt{min\_temperature}, \texttt{average\_temperature}, \texttt{max\_temperature}, \texttt{count})
+\\\\
+Um die Tabelle in die 2NF zu bringen, müssen zunächst noch die Attribute ausgelagert werden, welche nicht gleichzeitig von \texttt{station} und \texttt{date} abhängen. Attribute die nur von \texttt{date} abhängen sind: \texttt{day\_of\_year, day\_of\_week, month\_of\_year}, desweiteren besteht eine eins-zu-eins Beziehung zwischen \texttt{station} und \texttt{group}, was uns die Möglichkeit gibt die Station eindeutig über eine Ganzzahl zu identifizieren.. Das Datenbank-Schma ist also:
+
+\texttt{bike\_sharing\_data}(\underline{\texttt{group\#}, \texttt{date\#}}, \texttt{precipitation}, \texttt{windspeed}, \texttt{min\_temperature}, \texttt{average\_temperature}, \texttt{max\_temperature}, \texttt{count})
+\\\\
+\texttt{date\_information}(\underline{\texttt{date\#}}, \texttt{day\_of\_year}, \texttt{day\_of\_week}, \texttt{month\_of\_year})
+\\\\
+\texttt{station\_to\_groups}(\texttt{group\#}, \texttt{station})
+
+
+
+\subsubsection{SQL-Definition der Tabellen mittels DDL}
+
+\begin{minted}[linenos, frame=lines, bgcolor=bg]{sql}
+PRAGMA foreign_keys = ON; 
+CREATE TABLE "station_to_groups" (
+    "group" INTEGER PRIMARY KEY,
+    "station" TEXT
+);
+CREATE TABLE "date_information" (
+    "date" TEXT PRIMARY KEY,
+    "day_of_year" INTEGER,
+    "day_of_week" INTEGER,
+    "month_of_year" INTEGER
+);
+CREATE TABLE "bike_sharing_data" (
+    "group" INTEGER,
+    "date" TEXT,
+    "precipitation" REAL,
+    "windspeed" REAL,
+    "min_temperature" REAL,
+    "average_temperature" REAL,
+    "max_temperature" REAL,
+    "count" INTEGER,
+    PRIMARY KEY ("group", "date"),
+    FOREIGN KEY ("group") REFERENCES "station_to_groups"("group"),
+    FOREIGN KEY ("date") REFERENCES "date_information"("date")
+);
+\end{minted}
+
+\subsubsection{Vorbereiten des Datensatzes für den Import}
+Wir hatten eine CSV-Datei, die wir in Teiltabellen aufteilen mussten, da unser Datenbankschema aus drei Tabellen besteht. Dafür haben wir Python und das Modul Pandas verwendet und die CSV in eine Tabelle namens \texttt{daten} geladen. Während der Vorbereitung mussten wir mit NaN-Werten umgehen, da diese beim Gruppieren teilweise zu Problemen führten. Der folgende Code zeigt unser Vorgehen:
+\begin{lstlisting}
+station_to_groups = daten[['group', 'station']].drop_duplicates()
+\end{lstlisting}
+Der Code extrahiert die Spalten \texttt{group} und \texttt{station} aus dem Datensatz und entfernt mit \texttt{drop\_duplicates()} alle doppelten Kombinationen, um sicherzustellen, dass jede Gruppennummer genau einer Station zugeordnet ist.
+\begin{lstlisting}
+grouped = daten.groupby('date').agg({
+    'day_of_year': 'first',
+    'day_of_week': 'first',
+    'month_of_year': 'first',
+})
+date_information = grouped.reset_index()
+\end{lstlisting}
+Der Code gruppiert die Daten nach \texttt{date} und nimmt den ersten nicht-NaN-Wert jeder Spalte (\texttt{day\_of\_year}, \texttt{day\_of\_week}, \texttt{month\_of\_year}) pro Gruppe. Das wird so gemacht, um falsche Duplikate durch NaN-Werte zu vermeiden. Mit \texttt{reset\_index()} wird das Ergebnis wieder in Tabellenform gebracht.\\\\
+Die letzte Tabelle wird schließlich einfach durch das hinzufügen der benötigten spalten in eine neue Tabelle erzeugt:
+\begin{lstlisting}
+bike_sharing_data = daten[["group", "date",
+"precipitation", "windspeed", "min_temperature",
+"average_temperature", "max_temperature", "count"]]
+\end{lstlisting}
+
+\subsubsection{SQL Abfrage für die höchste mittlere Temperatur}
+\begin{minted}[linenos, frame=lines, bgcolor=bg]{sql}
+    SELECT 
+        (MAX("average_temperature") - 32) / 1.8
+    FROM 
+        bike_sharing_data
+    WHERE 
+        "group" = 52;
+\end{minted}
+Das zurückgegebene Ergebnis lautet: 28.333333333333332
+\newpage
+\bibliographystyle{plain}
+\bibliography{References}
+\end{document}
+
